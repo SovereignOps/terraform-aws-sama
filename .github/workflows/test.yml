@@ -1,0 +1,79 @@
+name: Infrastructure Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Terraform Validate & Security Scan
+    runs-on: ubuntu-latest
+
+    services:
+      # Docker Compose services are handled in the steps but we can also define them here if needed.
+      # For simplicity, we'll rely on the docker-compose file.
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v3
+        with:
+          tflint_version: latest
+
+      - name: Setup tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          version: latest
+
+      - name: Start Local Infrastructure (Docker Compose)
+        run: |
+          docker-compose up -d
+          # Wait for services to be healthy (simple sleep for now)
+          sleep 15
+          docker-compose ps
+
+      - name: TFLint (Static Analysis)
+        run: |
+          tflint --init
+          tflint --recursive
+
+      - name: tfsec (Security Audit)
+        run: |
+          tfsec .
+
+      - name: Terraform Validate (AWS)
+        working-directory: ./aws
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Terraform Validate (Azure)
+        working-directory: ./azure
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Terraform Validate (GCP)
+        working-directory: ./gcp
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: Terraform Validate (OCI)
+        working-directory: ./oci
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      # Optional: Test Apply against LocalStack for AWS
+      # Note: Requires provider configuration to point to localhost:4566
+      # This step assumes a test/dummy configuration exists or can be overridden.
