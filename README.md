@@ -10,7 +10,7 @@ This kit deploys a **3-Tier Private Architecture** compliant with SAMA Cyber Sec
 
 ```mermaid
 graph TD
-    subgraph "KSA Region (me-central-1)"
+    subgraph "Gulf Region (KSA/UAE)"
         subgraph "VPC (SAMA Compliant)"
             direction TB
             ALB[Application Load Balancer] --> |HTTPS/TLS 1.2| AppTier
