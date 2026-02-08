@@ -1,43 +1,43 @@
-# Azure Variables
-
 variable "resource_group_name" {
-  description = "Name of the resource group"
+  description = "Resource Group Name"
   type        = string
-  default     = "sama-rg"
 }
 
 variable "location" {
-  description = "Azure region (uae-north or qatar-central)"
+  description = "Azure Region (e.g., uae-north)"
   type        = string
   default     = "uae-north"
 }
 
 variable "postgres_server_name" {
-  description = "Name of the PostgreSQL Server"
+  description = "PostgreSQL Flexible Server Name"
   type        = string
-  default     = "sama-postgres"
 }
 
 variable "admin_username" {
-  description = "Administrator username for PostgreSQL"
+  description = "DB Admin Username"
   type        = string
-  default     = "samaadmin"
 }
 
 variable "admin_password" {
-  description = "Administrator password for PostgreSQL"
+  description = "DB Admin Password"
   type        = string
   sensitive   = true
 }
 
 variable "storage_account_name" {
-  description = "Name of the Storage Account"
+  description = "Storage Account Name (unique)"
   type        = string
-  default     = "samastorageacct"
 }
 
 variable "private_dns_zone_id" {
-  description = "ID of the Private DNS Zone for PostgreSQL Flexible Server (optional)"
+  description = "Private DNS Zone ID for Postgres"
   type        = string
   default     = null
+}
+
+variable "deletion_protection" {
+  description = "Enable deletion protection (locks) for resources"
+  type        = bool
+  default     = true
 }

@@ -69,6 +69,24 @@ We map SAMA Cyber Security Framework controls directly to Terraform resources.
 | **3.1.1.6** | Independent Audit Logs | Audit logs enabled globally. | `module.security` |
 | **3.3.15.4** | Incident Management Logs | Centralized logging bucket with MFA delete. | `module.data` |
 
+## 🏗 State Management & Layered Architecture
+
+To ensure **safety** and **isolation**, we recommend a layered approach to Terraform state. This prevents accidental destruction of critical data when modifying ephemeral compute resources.
+
+### Recommended Structure
+
+1.  **01-network**: VPC, Subnets, Security Groups, NACLs. (Changes rarely)
+2.  **02-data**: Databases, S3 Buckets, KMS Keys. (Stateful, Critical, Delete Protection)
+3.  **03-compute**: EC2, EKS, Lambda. (Stateless, Ephemeral)
+
+### Why?
+
+-   **Safety**: You can lock down the `02-data` state file with stricter permissions.
+-   **Speed**: `03-compute` plans are faster without refreshing the entire network/data estate.
+-   **Recovery**: Easier to recreate compute layers without touching persistent data.
+
+See `examples/aws/` for a reference implementation.
+
 ## 🚀 Usage Guide
 
 ### AWS

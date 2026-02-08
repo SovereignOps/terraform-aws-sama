@@ -71,14 +71,14 @@ resource "google_sql_database_instance" "instance" {
     }
   }
   
-  deletion_protection = false 
+  deletion_protection = var.deletion_protection 
 }
 
 # 3. Google Storage Bucket (Uniform Access, CMEK)
 resource "google_storage_bucket" "bucket" {
   name          = var.bucket_name
   location      = var.region
-  force_destroy = true
+  force_destroy = var.force_destroy
 
   uniform_bucket_level_access = true
 

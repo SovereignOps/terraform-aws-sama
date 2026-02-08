@@ -1,35 +1,46 @@
-# GCP Variables
-
 variable "project_id" {
-  description = "The GCP Project ID"
+  description = "GCP Project ID"
   type        = string
 }
 
 variable "region" {
-  description = "The GCP Region"
+  description = "GCP Region (must be in KSA, e.g., me-central2)"
   type        = string
   default     = "me-central2"
 }
 
 variable "network_name" {
-  description = "Name of the VPC network"
+  description = "VPC Network Name"
   type        = string
   default     = "sama-vpc"
 }
 
 variable "db_instance_name" {
-  description = "Name of the SQL Database Instance"
+  description = "Cloud SQL Instance Name"
   type        = string
   default     = "sama-sql-instance"
 }
 
 variable "bucket_name" {
-  description = "Name of the Storage Bucket"
+  description = "GCS Bucket Name (globally unique)"
   type        = string
-  default     = "sama-storage-bucket"
+  default     = "sama-gcs-bucket-unique-123"
 }
 
 variable "kms_key_name" {
-  description = "The KMS Key Name for CMEK (projects/[PROJECT_ID]/locations/[LOCATION]/keyRings/[KEY_RING]/cryptoKeys/[KEY_NAME])"
+  description = "KMS Key Resource Name for CMEK"
   type        = string
+  default     = "projects/YOUR_PROJECT/locations/me-central2/keyRings/my-key-ring/cryptoKeys/my-key"
+}
+
+variable "deletion_protection" {
+  description = "Enable deletion protection for databases"
+  type        = bool
+  default     = true
+}
+
+variable "force_destroy" {
+  description = "Force destroy GCS buckets"
+  type        = bool
+  default     = false
 }

@@ -1,7 +1,7 @@
 # tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-cloudtrail-require-bucket-access-logging
 resource "aws_s3_bucket" "logs" {
   bucket        = "${var.project_name}-logs-${var.region}"
-  force_destroy = true
+  force_destroy = var.force_destroy
 
   tags = {
     Name           = "${var.project_name}-logs"

@@ -18,7 +18,7 @@ resource "aws_db_instance" "sama_db" {
   backup_retention_period             = 35              # COMPLIANCE: Long retention
   enabled_cloudwatch_logs_exports     = ["postgresql", "upgrade"]
   multi_az                            = true # COMPLIANCE: High Availability
-  deletion_protection                 = true
+  deletion_protection                 = var.deletion_protection
   iam_database_authentication_enabled = true
   performance_insights_enabled        = true
   performance_insights_kms_key_id     = var.kms_key_arn
@@ -29,25 +29,32 @@ resource "aws_db_instance" "sama_db" {
   }
 }
 
-# S3 Bucket
-resource "aws_s3_bucket" "sama_data_bucket" {
-  bucket = "${var.project_name}-data-${var.region}"
+# S3 Buckets (Dynamic)
+resource "aws_s3_bucket" "this" {
+  for_each = var.buckets
+  
+  bucket        = "${var.project_name}-${each.value.suffix}-${var.region}"
+  force_destroy = var.force_destroy
 
   tags = {
-    Name           = "${var.project_name}-s3"
+    Name           = "${var.project_name}-${each.value.suffix}"
     Classification = "Confidential"
   }
 }
 
-resource "aws_s3_bucket_versioning" "sama_versioning" {
-  bucket = aws_s3_bucket.sama_data_bucket.id
+resource "aws_s3_bucket_versioning" "this" {
+  for_each = var.buckets
+
+  bucket = aws_s3_bucket.this[each.key].id
   versioning_configuration {
-    status = "Enabled" # HARDCODE
+    status = each.value.versioning ? "Enabled" : "Suspended"
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "sama_encryption" {
-  bucket = aws_s3_bucket.sama_data_bucket.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
+  for_each = var.buckets
+
+  bucket = aws_s3_bucket.this[each.key].id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -57,15 +64,19 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "sama_encryption" 
   }
 }
 
-resource "aws_s3_bucket_logging" "sama_logging" {
-  bucket = aws_s3_bucket.sama_data_bucket.id
+resource "aws_s3_bucket_logging" "this" {
+  for_each = var.buckets
+
+  bucket = aws_s3_bucket.this[each.key].id
 
   target_bucket = var.log_bucket_name
-  target_prefix = "s3-access-logs/"
+  target_prefix = "s3-access-logs/${each.key}/"
 }
 
-resource "aws_s3_bucket_public_access_block" "block_public" {
-  bucket = aws_s3_bucket.sama_data_bucket.id
+resource "aws_s3_bucket_public_access_block" "this" {
+  for_each = var.buckets
+
+  bucket = aws_s3_bucket.this[each.key].id
 
   block_public_acls       = true
   block_public_policy     = true

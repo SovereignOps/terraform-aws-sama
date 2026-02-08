@@ -74,6 +74,14 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   # We will assume standard encryption at rest is sufficient unless specific key provided.
 }
 
+resource "azurerm_management_lock" "postgres_lock" {
+  count      = var.deletion_protection ? 1 : 0
+  name       = "${var.postgres_server_name}-lock"
+  scope      = azurerm_postgresql_flexible_server.postgres.id
+  lock_level = "CanNotDelete"
+  notes      = "SAMA Compliance: Prevent accidental deletion of database."
+}
+
 
 # 2. Azure Storage Account (Private Endpoint)
 resource "azurerm_storage_account" "storage" {
@@ -92,6 +100,14 @@ resource "azurerm_storage_account" "storage" {
     default_action = "Deny"
     bypass         = ["AzureServices"]
   }
+}
+
+resource "azurerm_management_lock" "storage_lock" {
+  count      = var.deletion_protection ? 1 : 0
+  name       = "${var.storage_account_name}-lock"
+  scope      = azurerm_storage_account.storage.id
+  lock_level = "CanNotDelete"
+  notes      = "SAMA Compliance: Prevent accidental deletion of storage account."
 }
 
 resource "azurerm_private_endpoint" "storage_pe" {

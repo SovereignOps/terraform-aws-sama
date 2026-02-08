@@ -1,10 +1,15 @@
-variable "region" {
-  description = "AWS Region (defaults to me-central-1)"
+variable "project_name" {
+  description = "Project Name"
   type        = string
-  default     = "me-central-1"
 }
 
-variable "project_name" {
-  description = "Project name for resource tagging"
+variable "region" {
+  description = "AWS Region"
   type        = string
+}
+
+variable "force_destroy" {
+  description = "Force destroy S3 buckets"
+  type        = bool
+  default     = false
 }
